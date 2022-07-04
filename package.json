@@ -35,8 +35,11 @@
     "prepare": "husky install",
     "format": "prettier --find-config-path --write \"src/**/*.js\"",
     "serve": "node src/index.js",
-    "start": "nodemon src/index.js",
-    "lint": "eslint --fix src"
+    "lint": "eslint --fix src",
+    "client": "cd client && yarn start",
+    "server": "nodemon src/index.js",
+    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
+    "heroku-postbuild": "cd client && npm install && npm install --only=dev --no-shrinkwrap && npm run build"
   },
   "dependencies": {
     "chalk": "^5.0.1",
