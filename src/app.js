@@ -1,0 +1,48 @@
+require('dotenv').config();
+
+const express = require('express');
+const morgan = require('morgan');
+const compression = require('compression');
+const cors = require('cors');
+const helmet = require('helmet');
+// const formidableMiddleware = require('express-formidable');
+
+const app = express();
+
+app.use(morgan('dev'));
+
+app.set('trust proxy', true);
+
+// parse body params and attache them to req.body
+app.use(
+  express.json({
+    // limit: '100mb',
+    // verify: (req, res, buf) => {
+    //   if (req.originalUrl.indexOf('/webhook') !== -1) {
+    //     req.rawBody = buf.toString();
+    //   }
+    // },
+  })
+);
+
+// app.use(formidableMiddleware());
+
+app.use(express.urlencoded({ limit: '100mb', extended: true, parameterLimit: 50000 }));
+
+// TODO:
+// Disable gzip compression if not needed or use something like nginx to compress
+// gzip compression
+app.use(compression());
+
+// secure apps by setting various HTTP headers
+app.use(helmet());
+
+// enable CORS - Cross Origin Resource Sharing
+app.use(
+  cors({
+    credentials: true,
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+  })
+);
+
+module.exports = app;
