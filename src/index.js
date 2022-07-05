@@ -6,7 +6,6 @@ const logger = require('./helpers/logger');
 
 const app = require('./app');
 
-// const setup = require('./helpers/setup');
 const { socketConnection, SOCKET_IO } = require('./sockets');
 
 const { PORT, NODE_ENV } = require('./config');
@@ -37,7 +36,7 @@ process.on('SIGTERM', gracefulStopServer);
 
 const main = async () => {
   try {
-    logger.info(`DBF REST API is starting`);
+    logger.info(`REST API is starting`);
 
     server = http.createServer(app);
 
@@ -46,7 +45,7 @@ const main = async () => {
     app.set(SOCKET_IO, socketIO);
 
     server.listen(PORT, () => {
-      logger.info(`DBF REST API is listening on ${PORT} - env ${NODE_ENV}`);
+      logger.info(`REST API is listening on ${PORT} - env ${NODE_ENV}`);
     });
   } catch (error) {
     logger.error('Error occured while DBF REST API is starting', error);
