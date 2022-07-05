@@ -16,7 +16,7 @@ const gracefulStopServer = () => {
   logger.info('SIGTERM/SIGINT signal received: closing HTTP server');
   // Wait for existing connection to close and then exit.
   server.close(() => {
-    logger.info('Shutting down DBF REST API');
+    logger.info('Shutting down REST API');
     process.exit(0);
   });
 };

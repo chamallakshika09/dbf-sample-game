@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Editor from 'threejs/Editor';
 import Game from 'threejs/Game';
 import Viewport from 'threejs/Viewport';
@@ -15,34 +15,33 @@ const Scene = (props) => {
     createScene();
     onUpdateDimensions();
     window.addEventListener('resize', onUpdateDimensions, false);
+    const ref = mountRef.current;
     return () => {
       cancelAnimationFrame(requestID);
+      ref.removeChild(viewport.renderer.domElement);
       window.removeEventListener('resize', onUpdateDimensions);
     };
   }, []);
 
   const createScene = () => {
-    const { setEditor, setGame, setSceneCreated, sceneCreated } = props;
+    const { setEditor, setGame } = props;
 
-    if (!sceneCreated) {
-      const editor = new Editor();
+    const editor = new Editor();
 
-      viewport = new Viewport(editor, mountRef);
+    viewport = new Viewport(editor, mountRef);
 
-      const game = new Game(editor, viewport);
+    const game = new Game(editor, viewport);
 
-      const toolbar = new ToolBar(editor, viewport, game);
-      const keyboard = Keyboard(editor, viewport, game);
+    const toolbar = new ToolBar(editor, viewport, game);
+    const keyboard = Keyboard(editor, viewport, game);
 
-      editor.viewport = viewport;
-      editor.game = game;
+    editor.viewport = viewport;
+    editor.game = game;
 
-      setEditor(editor);
-      setGame(game);
-      setSceneCreated(true);
+    setEditor(editor);
+    setGame(game);
 
-      animate();
-    }
+    animate();
   };
 
   const onUpdateDimensions = () => {
