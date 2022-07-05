@@ -1,15 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import Editor from 'threejs/Editor';
 import Game from 'threejs/Game';
 import Viewport from 'threejs/Viewport';
 import ToolBar from 'threejs/Editor.toolbar';
 import { Keyboard } from 'threejs/Viewport.keys';
+import { WebSocketContext } from 'context/websockets';
 
 let viewport;
 let requestID;
 
 const Scene = (props) => {
   const mountRef = useRef();
+  const ws = useContext(WebSocketContext);
 
   useEffect(() => {
     createScene();
