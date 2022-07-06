@@ -5,6 +5,7 @@ class Game {
   constructor(editor, viewport) {
     // this.test = 'test';
     this.viewport = viewport;
+    this.editor = editor;
     this.margin = 0.05;
     this.rigidBodies = [];
     this.armMovement = 0;
@@ -54,7 +55,9 @@ class Game {
       segmentLength,
       dir
     );
-    this.rope = rope;
+
+    // this.rope = rope;
+    this.editor.state.ropes.push(rope);
 
     const influence = 1;
     ropeSoftBody.appendAnchor(0, ball1.userData.physicsBody, true, influence);
@@ -486,22 +489,42 @@ class Game {
     // Step world
     this.physicsWorld.stepSimulation(deltaTime, 10);
 
-    // Update rope
-    const softBody = this.rope.userData.physicsBody;
-    const ropePositions = this.rope.geometry.attributes.position.array;
-    const numVerts = ropePositions.length / 3;
-    const nodes = softBody.get_m_nodes();
-    let indexFloat = 0;
+    // // Update rope
+    // const softBody = this.rope.userData.physicsBody;
+    // const ropePositions = this.rope.geometry.attributes.position.array;
+    // const numVerts = ropePositions.length / 3;
+    // const nodes = softBody.get_m_nodes();
+    // let indexFloat = 0;
 
-    for (let i = 0; i < numVerts; i++) {
-      const node = nodes.at(i);
-      const nodePos = node.get_m_x();
-      ropePositions[indexFloat++] = nodePos.x();
-      ropePositions[indexFloat++] = nodePos.y();
-      ropePositions[indexFloat++] = nodePos.z();
+    // for (let i = 0; i < numVerts; i++) {
+    //   const node = nodes.at(i);
+    //   const nodePos = node.get_m_x();
+    //   ropePositions[indexFloat++] = nodePos.x();
+    //   ropePositions[indexFloat++] = nodePos.y();
+    //   ropePositions[indexFloat++] = nodePos.z();
+    // }
+
+    // this.rope.geometry.attributes.position.needsUpdate = true;
+
+    //update Ropes
+    for (let i = 0; i < this.editor.state.ropes.length; i++) {
+      const rope = this.editor.state.ropes[i];
+      const softBody = rope.userData.physicsBody;
+      const ropePositions = rope.geometry.attributes.position.array;
+      const numVerts = ropePositions.length / 3;
+      const nodes = softBody.get_m_nodes();
+      let indexFloat = 0;
+
+      for (let i = 0; i < numVerts; i++) {
+        const node = nodes.at(i);
+        const nodePos = node.get_m_x();
+        ropePositions[indexFloat++] = nodePos.x();
+        ropePositions[indexFloat++] = nodePos.y();
+        ropePositions[indexFloat++] = nodePos.z();
+      }
+
+      rope.geometry.attributes.position.needsUpdate = true;
     }
-
-    this.rope.geometry.attributes.position.needsUpdate = true;
 
     // Update rigid bodies
     for (let i = 0, il = this.rigidBodies.length; i < il; i++) {
