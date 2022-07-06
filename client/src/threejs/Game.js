@@ -12,6 +12,9 @@ class Game {
     this.gravityConstant = -9.8;
     this.addLights();
     this.initScene();
+
+    //scene objects
+    this.ceiling = null;
   }
 
   initScene = async () => {
@@ -37,6 +40,14 @@ class Game {
     this.createRigidBody(ball, ballShape, ballMass, pos, quat);
     ball.userData.physicsBody.setFriction(0.5);
     return ball;
+  };
+
+  createBallOnCeiling = (position) => {
+    const quat = new THREE.Quaternion();
+    const ballMass = 0;
+    const ballRadius = 0.6;
+
+    this.createTestBall(ballMass, ballRadius, position, quat);
   };
 
   attachBallsToRope = (ball1, ball2, ballRadius, dir) => {
@@ -77,7 +88,7 @@ class Game {
   };
 
   createTestScene = () => {
-    this.createCeiling(20, 60, 60);
+    this.ceiling = this.createCeiling(20, 60, 60);
 
     const pos = new THREE.Vector3();
     const quat = new THREE.Quaternion();
@@ -567,8 +578,16 @@ class Game {
     this.viewport.render();
   };
 
-  onMouseDown = () => {
-    console.log('mouse down');
+  onMouseDown = (event) => {
+    this.viewport.updateMouse(event);
+    this.viewport.raycaster.setFromCamera(this.viewport.mouse, this.viewport.camera);
+
+    let intersects = this.viewport.raycaster.intersectObject(this.ceiling, false);
+    if (intersects.length == 0) return;
+    let position = new THREE.Vector3().copy(intersects[0].point);
+
+    this.createBallOnCeiling(position);
+    console.log('ball placed on ceiling');
   };
 }
 export default Game;

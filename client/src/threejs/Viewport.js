@@ -108,6 +108,18 @@ class Viewport {
     this.editor.game.updatePhysics(deltaTime);
     this.renderer.render(this.scene, this.camera);
   };
+
+  updateMouse(event) {
+    const posX = event.clientX;
+    const posY = event.clientY;
+
+    if (!posX || !posY) {
+      return;
+    }
+
+    this.mouse.x = ((posX - this.renderer.domElement.offsetLeft) / window.innerWidth) * 2 - 1;
+    this.mouse.y = -((posY - this.renderer.domElement.offsetTop) / window.innerHeight) * 2 + 1;
+  }
 }
 
 export default Viewport;

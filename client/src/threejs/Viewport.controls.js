@@ -16,7 +16,7 @@ class Controls {
     function onMouseDown(event) {
       switch (event.button) {
         case 0: // left
-          editor.game.onMouseDown();
+          editor.game.onMouseDown(event);
           break;
         case 1: // middle
           break;
