@@ -7,7 +7,6 @@ import { Keyboard } from 'threejs/Viewport.keys';
 import { WebSocketContext } from 'context/websockets';
 
 let viewport;
-let requestID;
 
 const Scene = (props) => {
   const mountRef = useRef();
@@ -19,7 +18,7 @@ const Scene = (props) => {
     window.addEventListener('resize', onUpdateDimensions, false);
     const ref = mountRef.current;
     return () => {
-      cancelAnimationFrame(requestID);
+      cancelAnimationFrame(viewport.requestID);
       ref.removeChild(viewport.renderer.domElement);
       window.removeEventListener('resize', onUpdateDimensions);
     };
@@ -42,34 +41,24 @@ const Scene = (props) => {
 
     setEditor(editor);
     setGame(game);
-
-    animate();
   };
 
   const onUpdateDimensions = () => {
     let container = mountRef.current;
-    let width = container.offsetWidth;
+    let width = window.innerWidth;
     let height = window.innerHeight;
 
     const aspect = width / height;
 
     // resize threejs canvas
-    viewport.cameraPersp.aspect = aspect;
-    viewport.cameraPersp.updateProjectionMatrix();
+    viewport.camera.aspect = aspect;
+    viewport.camera.updateProjectionMatrix();
 
-    viewport.cameraOrtho.left = viewport.cameraOrtho.bottom * aspect;
-    viewport.cameraOrtho.right = viewport.cameraOrtho.top * aspect;
-    viewport.cameraOrtho.updateProjectionMatrix();
+    // viewport.cameraOrtho.left = viewport.cameraOrtho.bottom * aspect;
+    // viewport.cameraOrtho.right = viewport.cameraOrtho.top * aspect;
+    // viewport.cameraOrtho.updateProjectionMatrix();
 
     viewport.renderer.setSize(width, height);
-  };
-
-  const animate = () => {
-    if (requestID) {
-      cancelAnimationFrame(requestID);
-    }
-    requestID = requestAnimationFrame(animate);
-    viewport.render();
   };
 
   return <div id="mount" ref={mountRef}></div>;

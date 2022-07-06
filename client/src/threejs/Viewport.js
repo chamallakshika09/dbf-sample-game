@@ -22,14 +22,15 @@ class Viewport {
     this.INTERSECTED = null;
 
     //  this all needs to be moved to viewport.control
-    this.orbit = this.getOrbit(editor);
-    this.transformControl = this.getControl(editor);
+    this.orbit = this.getOrbitControls(this.camera, this.renderer.domElement);
+    this.transformControl = this.getTransformControl(this.camera, this.renderer.domElement, this.orbit);
     this.transformControl.space = 'local';
     this.scene.add(this.transformControl);
     this.controls = Controls(editor, this);
+    this.clock = new THREE.Clock();
   }
 
-  getCamera() {
+  getCamera = () => {
     // move to viewport?
     let container = this.element.current;
     let width = container.offsetWidth;
@@ -37,17 +38,14 @@ class Viewport {
 
     const aspect = width / height;
 
-    this.cameraPersp = new THREE.PerspectiveCamera(75, aspect, 1, 5000);
-    this.cameraPersp.position.y = 60;
-    this.cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
-    this.currentCamera = this.cameraPersp;
-    this.currentCamera.position.set(500, 500, 500);
-    this.currentCamera.lookAt(0, 60, 0);
-    return this.currentCamera;
-  }
+    const camera = new THREE.PerspectiveCamera(60, aspect, 0.2, 2000);
+    camera.position.y = 60;
+    camera.position.set(-7, 5, 8);
+    return camera;
+  };
 
-  getRenderer(container) {
-    let width = container.offsetWidth;
+  getRenderer = () => {
+    let width = window.innerWidth;
     let height = window.innerHeight;
 
     // let renderer = new THREE.WebGLRenderer();
@@ -56,88 +54,60 @@ class Viewport {
       antialias: true,
     });
 
-    // renderer.setPixelRatio(width / height);
     renderer.setSize(width, height);
-    // renderer.setSize(container.offsetWidth, container.offsetHeight)
-    renderer.setClearColor(0x000000, 0); // the default
-    renderer.localClippingEnabled = true;
+    renderer.setPixelRatio(window.devicePixelRatio);
 
-    renderer.autoClearStencil = true;
+    // renderer.setClearColor(0x000000, 0); // the default
+    // renderer.localClippingEnabled = true;
+
+    // renderer.autoClearStencil = true;
 
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+    // renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
     return renderer;
-  }
+  };
 
-  getOrbit(editor) {
-    let orbit = new OrbitControls(this.camera, this.renderer.domElement);
+  getOrbitControls = (camera, domElement) => {
+    let orbit = new OrbitControls(camera, domElement);
+    orbit.target.set(0, 2, 0);
     orbit.update();
-    orbit.minPolarAngle = 0;
-    orbit.maxPolarAngle = Math.PI;
-    /*        orbit.minAzimuthAngle = 0
-                    orbit.maxAzimuthAngle = Math.PI*/
-    orbit.mouseButtons = {
-      LEFT: null,
-      MIDDLE: THREE.MOUSE.PAN,
-      RIGHT: THREE.MOUSE.ROTATE,
-    };
+    // orbit.minPolarAngle = 0;
+    // orbit.maxPolarAngle = Math.PI;
+    // /*        orbit.minAzimuthAngle = 0
+    //                 orbit.maxAzimuthAngle = Math.PI*/
+    // orbit.mouseButtons = {
+    //   LEFT: null,
+    //   MIDDLE: THREE.MOUSE.PAN,
+    //   RIGHT: THREE.MOUSE.ROTATE,
+    // };
 
-    orbit.enablePan = true;
-    orbit.minDistance = 10;
-    orbit.maxDistance = 2000;
+    // orbit.enablePan = true;
+    // orbit.minDistance = 10;
+    // orbit.maxDistance = 2000;
 
     return orbit;
-  }
+  };
 
-  getControl(editor) {
-    let control = new TransformControls(this.camera, this.renderer.domElement);
+  getTransformControl = (camera, domElement, orbit) => {
+    let control = new TransformControls(camera, domElement);
     control.colliders = [];
     control.tags = [];
     control.rayLines = [];
 
     control.addEventListener('dragging-changed', (event) => {
-      this.orbit.enabled = !event.value;
+      orbit.enabled = !event.value;
     });
-
-    control.addEventListener('objectChange', function () {
-      if (this.object.type === 'Group') {
-        this.object.children.forEach((child) => {
-          // console.log('transmit group');
-          let objectData = {
-            uuid: child.uuid,
-            position: child.getWorldPosition(new THREE.Vector3()),
-            rotation: null,
-            scale: child.getWorldScale(new THREE.Vector3()),
-            quaternion: child.getWorldQuaternion(new THREE.Quaternion()),
-          };
-
-          editor.signals.objectChanged.dispatch(editor, objectData);
-        });
-
-        return;
-      }
-
-      if (this.object.type === 'Mesh') {
-        let objectData = {
-          uuid: this.object.uuid,
-          position: this.object.position,
-          rotation: this.object.rotation,
-          scale: this.object.scale,
-        };
-
-        editor.signals.objectChanged.dispatch(editor, objectData);
-      }
-    });
-
-    control.addEventListener('mouseDown', function () {});
 
     return control;
-  }
+  };
 
-  render() {
+  render = () => {
+    const deltaTime = this.clock.getDelta();
+
+    this.editor.game.updatePhysics(deltaTime);
     this.renderer.render(this.scene, this.camera);
-  }
+  };
 }
 
 export default Viewport;

@@ -1,9 +1,6 @@
-// import * as THREE from 'three';
-import Ammo from 'ammo.js';
-
+import * as THREE from 'three';
 class Editor {
   constructor() {
-    console.log(Ammo);
     this.state = {};
   }
 }
