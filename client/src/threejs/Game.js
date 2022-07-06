@@ -566,5 +566,9 @@ class Game {
     this.viewport.requestID = requestAnimationFrame(this.animate);
     this.viewport.render();
   };
+
+  onMouseDown = () => {
+    console.log('mouse down');
+  };
 }
 export default Game;

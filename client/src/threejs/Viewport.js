@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { Controls } from './Viewport.controls.js';
+import Controls from './Viewport.controls.js';
 
 class Viewport {
   constructor(editor, element) {
@@ -26,7 +26,7 @@ class Viewport {
     this.transformControl = this.getTransformControl(this.camera, this.renderer.domElement, this.orbit);
     this.transformControl.space = 'local';
     this.scene.add(this.transformControl);
-    this.controls = Controls(editor, this);
+    this.controls = new Controls(editor, this);
     this.clock = new THREE.Clock();
   }
 
