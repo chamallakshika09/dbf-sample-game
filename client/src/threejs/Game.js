@@ -581,6 +581,20 @@ class Game {
   };
 
   onMouseDown = (event) => {
+    let object = this.viewport.INTERSECTED;
+    if (object) {
+      const index = this.editor.pickingArr.findIndex((item) => item.uuid === object.uuid);
+      if (index != -1) {
+        this.editor.pickingArr.splice(index, 1);
+        console.log('ball removed from selection');
+      } else {
+        this.editor.pickingArr.push(object);
+        if (this.editor.pickingArr.length > 2) this.editor.pickingArr.shift();
+        console.log('ball added to selection');
+      }
+      console.log(this.editor.pickingArr.length);
+      return;
+    }
     this.viewport.updateMouse(event);
     this.viewport.raycaster.setFromCamera(this.viewport.mouse, this.viewport.camera);
 
