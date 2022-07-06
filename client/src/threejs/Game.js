@@ -77,9 +77,11 @@ class Game {
   };
 
   createTestScene = () => {
+    this.createCeiling(20, 60, 60);
+
     const pos = new THREE.Vector3();
     const quat = new THREE.Quaternion();
-    const ballMass = 1.2;
+    const ballMass = 0;
     const ballRadius = 0.6;
     const directions = ['x', 'y', 'z'];
     pos.set(0, 2, 0);
@@ -96,6 +98,13 @@ class Game {
         this.attachBallsToRope(balls[i - 1], balls[i], ballRadius, dir);
       }
     }
+
+    //grid helper (ground)
+    const size = 60;
+    const divisions = 10;
+
+    const gridHelper = new THREE.GridHelper(size, divisions);
+    this.viewport.scene.add(gridHelper);
   };
 
   getRopeEnd = (ropePos, ropeLength, dir) => {
@@ -206,10 +215,10 @@ class Game {
       this.collisionConfiguration,
       this.softBodySolver
     );
-    // this.physicsWorld.setGravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
-    this.physicsWorld.setGravity(new this.Ammo.btVector3(0, 0, 0));
-    // this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
-    this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, 0, 0));
+    this.physicsWorld.setGravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
+    //this.physicsWorld.setGravity(new this.Ammo.btVector3(0, 0, 0));
+    this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
+    // this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, 0, 0));
 
     this.transformAux1 = new this.Ammo.btTransform();
   };
@@ -230,23 +239,24 @@ class Game {
     return ball;
   };
 
-  createGround = (pos, quat) => {
-    pos.set(0, -0.5, 0);
+  createCeiling = (height, width, length) => {
+    const pos = new THREE.Vector3();
+    const quat = new THREE.Quaternion();
+    pos.set(0, height, 0);
     quat.set(0, 0, 0, 1);
-    const ground = this.createParalellepiped(40, 1, 40, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0xffffff }));
-    ground.castShadow = true;
-    ground.receiveShadow = true;
-    // textureLoader.load('textures/grid.png', function (texture) {
+    const ceiling = this.createParalellepiped(
+      width,
+      1,
+      length,
+      0,
+      pos,
+      quat,
+      new THREE.MeshStandardMaterial({ color: 0xffffff })
+    );
+    ceiling.castShadow = false;
+    ceiling.receiveShadow = false;
 
-    //     texture.wrapS = THREE.RepeatWrapping;
-    //     texture.wrapT = THREE.RepeatWrapping;
-    //     texture.repeat.set(40, 40);
-    //     ground.material.map = texture;
-    //     ground.material.needsUpdate = true;
-
-    // });
-
-    return ground;
+    return ceiling;
   };
 
   createWall = (pos, quat, brickMass, brickLength, brickDepth, brickHeight, numBricksLength, numBricksHeight) => {
@@ -386,7 +396,7 @@ class Game {
     const quat = new THREE.Quaternion();
 
     // Ground
-    this.createGround(pos, quat);
+    //this.createGround(pos, quat);
 
     // Ball
     const ballMass = 1.2;
