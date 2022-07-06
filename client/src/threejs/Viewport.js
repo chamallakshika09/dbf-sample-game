@@ -127,7 +127,7 @@ class Viewport {
     let mouse = this.mouse;
     let camera = this.camera;
     let raycaster = this.raycaster;
-    let objects = this.editor.game.balls;
+    let objects = this.editor.state.balls;
     if (!objects) return;
 
     this.updateMouse(event);
