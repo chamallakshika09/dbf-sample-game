@@ -1,11 +1,18 @@
 const { Server } = require('socket.io');
 const AMMO = require('ammo.js');
 
-const { UPDATE_STATE, BROADCAST_UPDATED_STATE } = require('../constants');
+const { UPDATE_STATE, BROADCAST_UPDATED_STATE, SEND_INITIAL_STATE } = require('../constants');
 
 const SOCKET_IO = 'socketIO';
 
 let socketIO;
+
+let clients = [];
+let state = {
+  balls: [],
+  ropes: [],
+  rigidBodies: [],
+};
 
 const socketConnection = async (server) => {
   if (!socketIO && server) {
@@ -22,11 +29,17 @@ const socketConnection = async (server) => {
     // console.log(v1);
 
     socketIO.on('connection', async (socket) => {
-      socket.on(UPDATE_STATE, (msg) => {
-        socketIO.emit(BROADCAST_UPDATED_STATE, msg);
+      clients.push(socket.id);
+      socket.emit(SEND_INITIAL_STATE, state);
+
+      socket.on(UPDATE_STATE, (updatedState) => {
+        state = updatedState;
+        socketIO.emit(BROADCAST_UPDATED_STATE, state);
       });
 
-      socket.on('disconnect', async () => {});
+      socket.on('disconnect', async () => {
+        clients = clients.filter((c) => c !== socket.id);
+      });
     });
   }
 

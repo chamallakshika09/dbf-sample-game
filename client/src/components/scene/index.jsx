@@ -1,16 +1,19 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Editor from 'threejs/Editor';
 import Game from 'threejs/Game';
 import Viewport from 'threejs/Viewport';
 import ToolBar from 'threejs/Editor.toolbar';
 import { Keyboard } from 'threejs/Viewport.keys';
-import { WebSocketContext } from 'context/websockets';
+import { SEND_INITIAL_STATE } from 'constant';
+import { io } from 'socket.io-client';
+import config from '../../config';
 
 let viewport;
+let editor;
+let game;
 
 const Scene = (props) => {
   const mountRef = useRef();
-  const ws = useContext(WebSocketContext);
 
   useEffect(() => {
     createScene();
@@ -21,17 +24,19 @@ const Scene = (props) => {
       cancelAnimationFrame(viewport.requestID);
       ref.removeChild(viewport.renderer.domElement);
       window.removeEventListener('resize', onUpdateDimensions);
+      editor.ws?.off(SEND_INITIAL_STATE, editor.loadInitialState);
     };
   }, []);
 
   const createScene = () => {
     const { setEditor, setGame } = props;
 
-    const editor = new Editor();
+    editor = new Editor();
+    editor.ws = io(config.BASE_URL);
 
     viewport = new Viewport(editor, mountRef);
 
-    const game = new Game(editor, viewport);
+    game = new Game(editor, viewport);
 
     const toolbar = new ToolBar(editor, viewport, game);
     const keyboard = Keyboard(editor, viewport, game);

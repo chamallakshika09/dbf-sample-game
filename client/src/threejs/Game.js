@@ -23,7 +23,66 @@ class Game {
 
     // this.createObjects();
     // this.update();
+    this.editor.loadGame();
     this.animate();
+  };
+
+  createInitialBall = (ball, ballRadius, ballMass) => {
+    const ballShape = new this.Ammo.btSphereShape(ballRadius);
+    ballShape.setMargin(this.margin);
+    this.createRigidBody(ball, ballShape, ballMass, ball.userData.pos, ball.userData.quat);
+  };
+
+  createInitialRope = (ballRadius, ropeLength, ropeNumSegments, ropeMass, ropePos, rope) => {
+    // Rope graphic object
+    ropePos.y += ballRadius;
+    this.viewport.scene.add(rope);
+
+    // Rope physic object
+    const softBodyHelpers = new this.Ammo.btSoftBodyHelpers();
+    const ropeStart = new this.Ammo.btVector3(ropePos.x, ropePos.y, ropePos.z);
+    const ropeEnd = new this.Ammo.btVector3(
+      ropePos.x + ropeLength.x,
+      ropePos.y + ropeLength.y,
+      ropePos.z + ropeLength.z
+    );
+    const ropeSoftBody = softBodyHelpers.CreateRope(
+      this.physicsWorld.getWorldInfo(),
+      ropeStart,
+      ropeEnd,
+      ropeNumSegments - 1,
+      0
+    );
+    const sbConfig = ropeSoftBody.get_m_cfg();
+    sbConfig.set_viterations(10);
+    sbConfig.set_piterations(10);
+    ropeSoftBody.setTotalMass(ropeMass, false);
+    this.Ammo.castObject(ropeSoftBody, this.Ammo.btCollisionObject)
+      .getCollisionShape()
+      .setMargin(this.margin * 3);
+    this.physicsWorld.addSoftBody(ropeSoftBody, 1, -1);
+    rope.userData.physicsBody = ropeSoftBody;
+    // Disable deactivation
+    ropeSoftBody.setActivationState(4);
+
+    return ropeSoftBody;
+  };
+
+  loadInitialScene = () => {
+    const ballMass = 0;
+    const ballRadius = 0.6;
+    const { balls, ropes } = this.editor.state;
+
+    if (balls.length > 0) {
+      for (let i = 0; i < balls.length; i++) {
+        if (i === 0) {
+          this.createInitialBall(balls[i], ballRadius, ballMass);
+        } else {
+          this.createInitialBall(balls[i], ballRadius, ballMass);
+          this.attachBallsToRope(balls[i - 1], balls[i], ballRadius, true, ropes[i - 1]);
+        }
+      }
+    }
   };
 
   createTestBall = (ballMass, ballRadius, pos, quat) => {
@@ -37,10 +96,12 @@ class Game {
     ballShape.setMargin(this.margin);
     this.createRigidBody(ball, ballShape, ballMass, pos, quat);
     ball.userData.physicsBody.setFriction(0.5);
+    ball.userData.pos = pos;
+    ball.userData.quat = quat;
     return ball;
   };
 
-  attachBallsToRope = (ball1, ball2, ballRadius) => {
+  attachBallsToRope = (ball1, ball2, ballRadius, initial = false, initRope = null) => {
     const ropeNumSegments = 10;
     const ropeMass = 3;
     const ropePos = ball1.position.clone();
@@ -52,16 +113,26 @@ class Game {
       y: ropeLength.y / ropeNumSegments,
       z: ropeLength.z / ropeNumSegments,
     };
-    const { rope, ropeSoftBody } = this.createTestRope(
-      ballRadius,
-      ropeLength,
-      ropeNumSegments,
-      ropeMass,
-      ropePos,
-      segmentLength
-    );
 
-    this.editor.state.ropes.push(rope);
+    if (!initial) {
+      const { rope, ropeSoftBody } = this.createTestRope(
+        ballRadius,
+        ropeLength,
+        ropeNumSegments,
+        ropeMass,
+        ropePos,
+        segmentLength
+      );
+
+      this.editor.state.ropes.push(rope);
+
+      const influence = 1;
+      ropeSoftBody.appendAnchor(0, ball1.userData.physicsBody, true, influence);
+      ropeSoftBody.appendAnchor(ropeNumSegments, ball2.userData.physicsBody, true, influence);
+      return;
+    }
+
+    const ropeSoftBody = this.createInitialRope(ballRadius, ropeLength, ropeNumSegments, ropeMass, ropePos, initRope);
 
     const influence = 1;
     ropeSoftBody.appendAnchor(0, ball1.userData.physicsBody, true, influence);
@@ -81,6 +152,7 @@ class Game {
       balls.push(this.createTestBall(ballMass, ballRadius, pos, quat));
       this.attachBallsToRope(balls[length - 1], balls[length], ballRadius);
     }
+    this.editor.updateState();
   };
 
   createTestRope = (ballRadius, ropeLength, ropeNumSegments, ropeMass, ropePos, segmentLength) => {
