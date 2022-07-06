@@ -17,9 +17,152 @@ class Game {
     this.Ammo = await Ammo();
     this.initPhysics();
 
-    this.createObjects();
+    this.createTestScene();
+
+    // this.createObjects();
     // this.update();
     this.animate();
+  };
+
+  createTestBall = (ballMass, ballRadius, pos, quat) => {
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(ballRadius, 20, 20),
+      new THREE.MeshPhongMaterial({ color: 0x202020 })
+    );
+    ball.castShadow = true;
+    ball.receiveShadow = true;
+    const ballShape = new this.Ammo.btSphereShape(ballRadius);
+    ballShape.setMargin(this.margin);
+    this.createRigidBody(ball, ballShape, ballMass, pos, quat);
+    ball.userData.physicsBody.setFriction(0.5);
+    return ball;
+  };
+
+  attachBallsToRope = (ball1, ball2, ballRadius, dir) => {
+    const ropeNumSegments = 10;
+    const ropeMass = 3;
+    const ropePos = ball1.position.clone();
+    // const ropeLength = 4;
+    const ropeLength = ball1.position.clone().distanceTo(ball2.position.clone());
+    const segmentLength = ropeLength / ropeNumSegments;
+    const { rope, ropeSoftBody } = this.createTestRope(
+      ballRadius,
+      ropeLength,
+      ropeNumSegments,
+      ropeMass,
+      ropePos,
+      segmentLength,
+      dir
+    );
+    this.rope = rope;
+
+    const influence = 1;
+    ropeSoftBody.appendAnchor(0, ball1.userData.physicsBody, true, influence);
+    ropeSoftBody.appendAnchor(ropeNumSegments, ball2.userData.physicsBody, true, influence);
+  };
+
+  getPos = ({ x, y, z }, dir) => {
+    if (dir === 'x') {
+      return { x: x + 5, y, z };
+    }
+    if (dir === 'y') {
+      return { x, y: y + 5, z };
+    }
+    if (dir === 'z') {
+      return { x, y, z: z + 5 };
+    }
+  };
+
+  createTestScene = () => {
+    const pos = new THREE.Vector3();
+    const quat = new THREE.Quaternion();
+    const ballMass = 1.2;
+    const ballRadius = 0.6;
+    const directions = ['x', 'y', 'z'];
+    pos.set(0, 2, 0);
+    quat.set(0, 0, 0, 1);
+    const balls = [];
+    for (let i = 0; i < 10; i++) {
+      if (i === 0) {
+        balls.push(this.createTestBall(ballMass, ballRadius, pos, quat));
+      } else {
+        const dir = directions[(i - 1) % 3];
+        const { x, y, z } = this.getPos(pos, dir);
+        pos.set(x, y, z);
+        balls.push(this.createTestBall(ballMass, ballRadius, pos, quat));
+        this.attachBallsToRope(balls[i - 1], balls[i], ballRadius, dir);
+      }
+    }
+  };
+
+  getRopeEnd = (ropePos, ropeLength, dir) => {
+    if (dir === 'x') {
+      return new this.Ammo.btVector3(ropePos.x + ropeLength, ropePos.y, ropePos.z);
+    }
+    if (dir === 'y') {
+      return new this.Ammo.btVector3(ropePos.x, ropePos.y + ropeLength, ropePos.z);
+    }
+    if (dir === 'z') {
+      return new this.Ammo.btVector3(ropePos.x, ropePos.y, ropePos.z + ropeLength);
+    }
+  };
+
+  createTestRope = (ballRadius, ropeLength, ropeNumSegments, ropeMass, ropePos, segmentLength, dir) => {
+    // Rope graphic object
+    ropePos.y += ballRadius;
+    const ropeGeometry = new THREE.BufferGeometry();
+    const ropeMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const ropePositions = [];
+    const ropeIndices = [];
+
+    for (let i = 0; i < ropeNumSegments + 1; i++) {
+      if (dir === 'x') {
+        ropePositions.push(ropePos.x + i * segmentLength, ropePos.y, ropePos.z);
+      }
+      if (dir === 'y') {
+        ropePositions.push(ropePos.x, ropePos.y + i * segmentLength, ropePos.z);
+      }
+      if (dir === 'z') {
+        ropePositions.push(ropePos.x, ropePos.y, ropePos.z + i * segmentLength);
+      }
+    }
+
+    for (let i = 0; i < ropeNumSegments; i++) {
+      ropeIndices.push(i, i + 1);
+    }
+
+    ropeGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(ropeIndices), 1));
+    ropeGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(ropePositions), 3));
+    ropeGeometry.computeBoundingSphere();
+    const rope = new THREE.LineSegments(ropeGeometry, ropeMaterial);
+    rope.castShadow = true;
+    rope.receiveShadow = true;
+    this.viewport.scene.add(rope);
+
+    // Rope physic object
+    const softBodyHelpers = new this.Ammo.btSoftBodyHelpers();
+    const ropeStart = new this.Ammo.btVector3(ropePos.x, ropePos.y, ropePos.z);
+    const ropeEnd = this.getRopeEnd(ropePos, ropeLength, dir);
+    const ropeSoftBody = softBodyHelpers.CreateRope(
+      this.physicsWorld.getWorldInfo(),
+      ropeStart,
+      ropeEnd,
+      ropeNumSegments - 1,
+      0
+    );
+    const sbConfig = ropeSoftBody.get_m_cfg();
+    sbConfig.set_viterations(10);
+    sbConfig.set_piterations(10);
+    ropeSoftBody.setTotalMass(ropeMass, false);
+    this.Ammo.castObject(ropeSoftBody, this.Ammo.btCollisionObject)
+      .getCollisionShape()
+      .setMargin(this.margin * 3);
+    this.physicsWorld.addSoftBody(ropeSoftBody, 1, -1);
+    rope.userData.physicsBody = ropeSoftBody;
+    // Disable deactivation
+    ropeSoftBody.setActivationState(4);
+
+    return { rope, ropeSoftBody };
   };
 
   addLights = () => {
@@ -60,8 +203,10 @@ class Game {
       this.collisionConfiguration,
       this.softBodySolver
     );
-    this.physicsWorld.setGravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
-    this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
+    // this.physicsWorld.setGravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
+    this.physicsWorld.setGravity(0);
+    // this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
+    this.physicsWorld.getWorldInfo().set_m_gravity(0);
 
     this.transformAux1 = new this.Ammo.btTransform();
   };
@@ -336,7 +481,7 @@ class Game {
 
   updatePhysics = (deltaTime) => {
     // Hinge control
-    this.hinge.enableAngularMotor(true, 1.5 * this.armMovement, 50);
+    // this.hinge.enableAngularMotor(true, 1.5 * this.armMovement, 50);
 
     // Step world
     this.physicsWorld.stepSimulation(deltaTime, 10);

@@ -1,7 +1,11 @@
 import * as THREE from 'three';
 class Editor {
   constructor() {
-    this.state = {};
+    this.state = {
+      balls: [],
+      ropes: [],
+      rigidBodies: [],
+    };
   }
 }
 
