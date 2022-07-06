@@ -28,6 +28,9 @@ class Viewport {
     this.scene.add(this.transformControl);
     this.controls = Controls(editor, this);
     this.clock = new THREE.Clock();
+
+    this.renderer.domElement.addEventListener('mousemove', this.mouseHover.bind(this));
+    this.drawingPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   }
 
   getCamera = () => {
@@ -38,9 +41,9 @@ class Viewport {
 
     const aspect = width / height;
 
-    const camera = new THREE.PerspectiveCamera(60, aspect, 0.2, 2000);
+    const camera = new THREE.PerspectiveCamera(70, aspect, 1, 2000);
     camera.position.y = 60;
-    camera.position.set(-7, 5, 8);
+    camera.position.set(50, 50, 50);
     return camera;
   };
 
@@ -108,6 +111,22 @@ class Viewport {
     this.editor.game.updatePhysics(deltaTime);
     this.renderer.render(this.scene, this.camera);
   };
+
+  updateMouse(event) {
+    const posX = event.clientX;
+    const posY = event.clientY;
+
+    if (!posX || !posY) {
+      return;
+    }
+
+    this.mouse.x = ((posX - this.renderer.domElement.offsetLeft) / window.innerWidth) * 2 - 1;
+    this.mouse.y = -((posY - this.renderer.domElement.offsetTop) / window.innerHeight) * 2 + 1;
+  }
+
+  mouseHover(event) {
+    this.updateMouse(event);
+  }
 }
 
 export default Viewport;
