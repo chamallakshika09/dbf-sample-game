@@ -207,9 +207,9 @@ class Game {
       this.softBodySolver
     );
     // this.physicsWorld.setGravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
-    this.physicsWorld.setGravity(0);
+    this.physicsWorld.setGravity(new this.Ammo.btVector3(0, 0, 0));
     // this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, this.gravityConstant, 0));
-    this.physicsWorld.getWorldInfo().set_m_gravity(0);
+    this.physicsWorld.getWorldInfo().set_m_gravity(new this.Ammo.btVector3(0, 0, 0));
 
     this.transformAux1 = new this.Ammo.btTransform();
   };
