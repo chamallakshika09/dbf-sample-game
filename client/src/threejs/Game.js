@@ -50,14 +50,8 @@ class Game {
   };
 
   createObjects = () => {
-    this.ceiling = this.createCeiling(20, 60, 60);
-
-    //grid helper (ground)
-    const size = 60;
-    const divisions = 10;
-
-    const gridHelper = new THREE.GridHelper(size, divisions);
-    this.viewport.scene.add(gridHelper);
+    this.floor = this.createFloor(0, 60, 60, 1);
+    this.ceiling = this.createCeiling(40, 60, 10);
   };
 
   createRope = (ball1, ball2) => {
@@ -161,24 +155,40 @@ class Game {
     this.transformAux1 = new this.Ammo.btTransform();
   };
 
-  createCeiling = (height, width, length) => {
+  createCeiling = (translationY, size, divisions) => {
+    const gridHelper = new THREE.GridHelper(size, divisions);
+    gridHelper.position.set(0, translationY, 0);
+    this.viewport.scene.add(gridHelper);
+
+    let geometry = new THREE.PlaneBufferGeometry(size, size, 1, 1);
+    geometry.rotateX(-Math.PI / 2);
+    let material = new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+    let floor = new THREE.Mesh(geometry, material);
+    floor.position.set(0, translationY, 0);
+    floor.visible = false;
+    this.viewport.scene.add(floor);
+
+    return floor;
+  };
+
+  createFloor = (translationY, width, length, height) => {
     const position = new THREE.Vector3();
     const quaternion = new THREE.Quaternion();
-    position.set(0, height, 0);
+    position.set(0, translationY - height / 2, 0);
     quaternion.set(0, 0, 0, 1);
-    const ceiling = this.createParalellepiped(
+    const floor = this.createParalellepiped(
       width,
-      1,
+      height,
       length,
       0,
       position,
       quaternion,
       new THREE.MeshStandardMaterial({ color: 0xffffff })
     );
-    ceiling.castShadow = false;
-    ceiling.receiveShadow = false;
+    floor.castShadow = false;
+    floor.receiveShadow = false;
 
-    return ceiling;
+    return floor;
   };
 
   createParalellepiped = (sx, sy, sz, mass, position, quaternion, material) => {
