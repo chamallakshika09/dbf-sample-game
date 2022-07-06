@@ -15,6 +15,7 @@ class Game {
 
     //scene objects
     this.ceiling = null;
+    this.balls = [];
   }
 
   initScene = async () => {
@@ -47,7 +48,8 @@ class Game {
     const ballMass = 0;
     const ballRadius = 0.6;
 
-    this.createTestBall(ballMass, ballRadius, position, quat);
+    let ball = this.createTestBall(ballMass, ballRadius, position, quat);
+    return ball;
   };
 
   attachBallsToRope = (ball1, ball2, ballRadius, dir) => {
@@ -586,7 +588,8 @@ class Game {
     if (intersects.length == 0) return;
     let position = new THREE.Vector3().copy(intersects[0].point);
 
-    this.createBallOnCeiling(position);
+    let ball = this.createBallOnCeiling(position);
+    this.balls.push(ball);
     console.log('ball placed on ceiling');
   };
 }

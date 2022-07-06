@@ -28,6 +28,8 @@ class Viewport {
     this.scene.add(this.transformControl);
     this.controls = new Controls(editor, this);
     this.clock = new THREE.Clock();
+
+    this.renderer.domElement.addEventListener('mousemove', this.mouseHover.bind(this));
   }
 
   getCamera = () => {
@@ -120,6 +122,54 @@ class Viewport {
     this.mouse.x = ((posX - this.renderer.domElement.offsetLeft) / window.innerWidth) * 2 - 1;
     this.mouse.y = -((posY - this.renderer.domElement.offsetTop) / window.innerHeight) * 2 + 1;
   }
+
+  mouseHover(event) {
+    let mouse = this.mouse;
+    let camera = this.camera;
+    let raycaster = this.raycaster;
+    let objects = this.editor.game.balls;
+    if (!objects) return;
+
+    this.updateMouse(event);
+
+    let { intersects, INTERSECTED } = Select({ raycaster, mouse, camera, objects });
+
+    ToggleHighlight(this.editor.viewport, intersects, INTERSECTED);
+  }
+}
+
+function ToggleHighlight(viewport, intersects, INTERSECTED) {
+  if (intersects) {
+    if (INTERSECTED !== viewport.INTERSECTED) {
+      if (viewport.INTERSECTED) {
+        viewport.INTERSECTED.material.emissive.setHex(viewport.INTERSECTED.material.emissive.setHex(0x00ff00));
+      }
+      viewport.INTERSECTED = INTERSECTED;
+      viewport.intersects = intersects;
+      viewport.INTERSECTED.currentHex = viewport.INTERSECTED.material.emissive.getHex();
+      viewport.INTERSECTED.material.emissive.setHex(0xff0000);
+    }
+  } else {
+    if (!viewport.INTERSECTED) return;
+    viewport.INTERSECTED.material.emissive.setHex(viewport.INTERSECTED.material.emissive.setHex(0x00ff00));
+    viewport.INTERSECTED = null;
+  }
+}
+
+function Select(params) {
+  let { raycaster, mouse, camera, objects } = params;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  let intersections = raycaster.intersectObjects(objects, false);
+
+  if (intersections.length) {
+    const intersects = intersections.map((i) => i.object);
+    let INTERSECTED = intersects[0];
+    return { intersects, INTERSECTED, intersections };
+  }
+
+  return { intersects: null, INTERSECTED: null };
 }
 
 export default Viewport;
