@@ -41,12 +41,7 @@ app.use(compression());
 app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
-app.use(
-  cors({
-    credentials: true,
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
-  })
-);
+app.use(cors());
 
 if (NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
