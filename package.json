@@ -38,6 +38,7 @@
     "client": "cd client && yarn start",
     "server": "nodemon src/index.js",
     "build": "cd client && yarn build",
+    "start": "node src/index.js",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
     "heroku-postbuild": "cd client && yarn install && yarn install --only=dev --no-shrinkwrap && yarn build"
   },
