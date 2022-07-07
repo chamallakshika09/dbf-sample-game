@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const compression = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
+const { NODE_ENV } = require('./config');
 
 // const formidableMiddleware = require('express-formidable');
 
@@ -45,5 +47,13 @@ app.use(
     origin: ['http://localhost:3000', 'http://localhost:3001'],
   })
 );
+
+if (NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/build')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+}
 
 module.exports = app;
