@@ -17,6 +17,7 @@ class Viewport {
     container.appendChild(this.renderer.domElement);
 
     this.raycaster = new THREE.Raycaster();
+    this.raycaster.params.Line.threshold = 0.1;
 
     this.mouse = new THREE.Vector2(1, 1);
     this.INTERSECTED = null;
