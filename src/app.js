@@ -38,7 +38,11 @@ app.use(express.urlencoded({ limit: '100mb', extended: true, parameterLimit: 500
 app.use(compression());
 
 // secure apps by setting various HTTP headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
