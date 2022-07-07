@@ -2,6 +2,7 @@ const { Server } = require('socket.io');
 // const AMMO = require('ammo.js');
 
 const { UPDATE_STATE, BROADCAST_UPDATED_STATE, SEND_INITIAL_STATE } = require('../constants');
+const { getDiff, updateDiff } = require('../utils/stateOps');
 
 const SOCKET_IO = 'socketIO';
 
@@ -32,10 +33,12 @@ const socketConnection = async (server) => {
 
     socketIO.on('connection', async (socket) => {
       clients.push(socket.id);
-      // socket.emit(SEND_INITIAL_STATE, state);
 
       socket.on(UPDATE_STATE, (updatedState) => {
-        state = updatedState;
+        const diff = getDiff(state, updatedState);
+
+        const updated = updateDiff(state, diff);
+        state = updated;
         socketIO.emit(BROADCAST_UPDATED_STATE, state);
       });
 

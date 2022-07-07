@@ -32,7 +32,36 @@ class Game {
 
     this.createObjects();
     this.editor.loadGame();
+    this.editor.updateGame();
     this.animate();
+  };
+
+  clearScene = () => {
+    const { balls, ropes } = this.editor.state;
+
+    if (balls.length > 0) {
+      for (let i = 0; i < balls.length; i++) {
+        const ball = this.viewport.scene.getObjectById(balls[i].id);
+        if (ball) {
+          disposeMesh(this.viewport.scene, ball, true);
+          // this.viewport.scene.remove(ball);
+          // ball.geometry.dispose();
+          // ball.material.dispose();
+        }
+      }
+    }
+
+    if (ropes.length > 0) {
+      for (let i = 0; i < ropes.length; i++) {
+        const rope = this.viewport.scene.getObjectById(ropes[i].id);
+        if (rope) {
+          disposeMesh(this.viewport.scene, rope, true);
+          // this.viewport.scene.remove(rope);
+          // rope.geometry.dispose();
+          // rope.material.dispose();
+        }
+      }
+    }
   };
 
   createBallFromState = (ball, ballRadius) => {

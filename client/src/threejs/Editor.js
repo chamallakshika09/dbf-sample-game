@@ -1,6 +1,6 @@
 import { stateApi } from 'apis';
 import { ObjectLoader, Quaternion, Vector3 } from 'three';
-import { SEND_INITIAL_STATE, UPDATE_STATE } from '../constants';
+import { BROADCAST_UPDATED_STATE, SEND_INITIAL_STATE, UPDATE_STATE } from '../constants';
 class Editor {
   constructor() {
     this.pickingArr = [];
@@ -30,6 +30,7 @@ class Editor {
   };
 
   loadInitialState = (state) => {
+    this.game.clearScene();
     this.loadState(state);
     this.game.loadInitialScene();
   };
@@ -44,6 +45,10 @@ class Editor {
     }
 
     // this.ws.on(SEND_INITIAL_STATE, this.loadInitialState);
+  };
+
+  updateGame = () => {
+    this.ws.on(BROADCAST_UPDATED_STATE, this.loadInitialState);
   };
 }
 

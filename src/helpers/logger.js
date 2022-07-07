@@ -1,6 +1,5 @@
 const { createLogger, format, transports } = require('winston');
 const chalk = require('chalk');
-const { LOG_LEVEL } = require('../config');
 
 const { combine, colorize, label, printf, json, timestamp } = format;
 
@@ -16,7 +15,7 @@ const logFormat = combine(
 );
 
 const logger = createLogger({
-  level: LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || 'debug',
   transports: [new transports.Console({})],
   format: logFormat,
   exitOnError: false,

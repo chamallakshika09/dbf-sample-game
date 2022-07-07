@@ -8,7 +8,7 @@ const app = require('./app');
 
 const { socketConnection, SOCKET_IO } = require('./sockets');
 
-const { PORT, NODE_ENV } = require('./config');
+const PORT = process.env.PORT || 3010;
 
 let server;
 
@@ -45,7 +45,7 @@ const main = async () => {
     app.set(SOCKET_IO, socketIO);
 
     server.listen(PORT, () => {
-      logger.info(`REST API is listening on ${PORT} - env ${NODE_ENV}`);
+      logger.info(`REST API is listening on ${PORT} - env ${process.env.NODE_ENV}`);
     });
   } catch (error) {
     logger.error('Error occured while DBF REST API is starting', error);
