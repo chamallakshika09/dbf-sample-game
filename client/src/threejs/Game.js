@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import Ammo from 'ammo.js';
+import { v4 as uuidv4 } from 'uuid';
 
 class Game {
   constructor(editor, viewport) {
@@ -10,9 +11,6 @@ class Game {
     this.rigidBodies = [];
     this.armMovement = 0;
     this.gravityConstant = -9.8;
-    this.addLights();
-    this.initScene();
-
     // elements option
     this.ballRadius = 0.6;
     this.ballMass = 0;
@@ -22,6 +20,9 @@ class Game {
 
     //scene objects
     this.ceiling = null;
+
+    this.addLights();
+    this.initScene(); //lets keep this at the end of the constructor
   }
 
   initScene = async () => {
@@ -29,8 +30,67 @@ class Game {
     this.initPhysics();
 
     this.createObjects();
-
+    this.editor.loadGame();
     this.animate();
+  };
+
+  createBallFromState = (ball, ballRadius, ballMass) => {
+    const ballShape = new this.Ammo.btSphereShape(ballRadius);
+    ballShape.setMargin(this.margin);
+    this.createRigidBody(ball, ballShape, ballMass, ball.userData.pos, ball.userData.quat);
+  };
+
+  createRopeFromState = (rope) => {
+    const { balls } = this.editor.state;
+    const ball1 = balls.filter((ball) => ball.userData.id === rope.userData.ball1)[0];
+    const ball2 = balls.filter((ball) => ball.userData.id === rope.userData.ball2)[0];
+
+    // Rope graphic object
+    this.viewport.scene.add(rope);
+
+    // Rope physic object
+    const softBodyHelpers = new this.Ammo.btSoftBodyHelpers();
+    const ropeStart = new this.Ammo.btVector3(ball1.position.x, ball1.position.y, ball1.position.z);
+    const ropeEnd = new this.Ammo.btVector3(ball2.position.x, ball2.position.y, ball2.position.z);
+    const ropeSoftBody = softBodyHelpers.CreateRope(
+      this.physicsWorld.getWorldInfo(),
+      ropeStart,
+      ropeEnd,
+      this.ropeNumSegments - 1,
+      0
+    );
+    const sbConfig = ropeSoftBody.get_m_cfg();
+    sbConfig.set_viterations(10);
+    sbConfig.set_piterations(10);
+    ropeSoftBody.setTotalMass(this.ropeMass, false);
+    this.Ammo.castObject(ropeSoftBody, this.Ammo.btCollisionObject)
+      .getCollisionShape()
+      .setMargin(this.margin * 3);
+    this.physicsWorld.addSoftBody(ropeSoftBody, 1, -1);
+    rope.userData.physicsBody = ropeSoftBody;
+    // Disable deactivation
+    ropeSoftBody.setActivationState(4);
+
+    ropeSoftBody.appendAnchor(0, ball1.userData.physicsBody, true, this.influence);
+    ropeSoftBody.appendAnchor(this.ropeNumSegments, ball2.userData.physicsBody, true, this.influence);
+
+    return ropeSoftBody;
+  };
+
+  loadInitialScene = () => {
+    const { balls, ropes } = this.editor.state;
+
+    if (balls.length > 0) {
+      for (let i = 0; i < balls.length; i++) {
+        this.createBallFromState(balls[i], this.ballRadius, this.ballMass);
+      }
+    }
+
+    if (ropes.length > 0) {
+      for (let i = 0; i < ropes.length; i++) {
+        this.createRopeFromState(ropes[i]);
+      }
+    }
   };
 
   createBall = (ballMass, ballRadius, position) => {
@@ -46,6 +106,9 @@ class Game {
     ballShape.setMargin(this.margin);
     this.createRigidBody(ball, ballShape, ballMass, position, quaternion);
     ball.userData.physicsBody.setFriction(0.5);
+    ball.userData.id = uuidv4();
+    ball.userData.pos = position;
+    ball.userData.quat = quaternion;
     return ball;
   };
 
@@ -102,6 +165,10 @@ class Game {
     rope.userData.physicsBody = ropeSoftBody;
     // Disable deactivation
     ropeSoftBody.setActivationState(4);
+
+    rope.userData.id = uuidv4();
+    rope.userData.ball1 = ball1.userData.id;
+    rope.userData.ball2 = ball2.userData.id;
 
     this.editor.state.ropes.push(rope);
 
@@ -276,41 +343,6 @@ class Game {
     }
     this.viewport.requestID = requestAnimationFrame(this.animate);
     this.viewport.render();
-  };
-
-  onMouseDown = (event) => {
-    let object = this.viewport.INTERSECTED;
-    if (object) {
-      const index = this.editor.pickingArr.findIndex((item) => item.uuid === object.uuid);
-      if (index != -1) {
-        this.editor.pickingArr.splice(index, 1);
-        console.log('ball removed from selection');
-      } else {
-        this.editor.pickingArr.push(object);
-        if (this.editor.pickingArr.length > 2) this.editor.pickingArr.shift();
-        console.log('ball added to selection');
-      }
-      console.log(this.editor.pickingArr.length);
-
-      if (this.editor.pickingArr.length == 2) {
-        let ball1 = this.editor.pickingArr[0];
-        let ball2 = this.editor.pickingArr[1];
-        this.createRope(ball1, ball2);
-      }
-
-      return;
-    }
-    this.viewport.updateMouse(event);
-    this.viewport.raycaster.setFromCamera(this.viewport.mouse, this.viewport.camera);
-
-    let intersects = this.viewport.raycaster.intersectObject(this.ceiling, false);
-    if (intersects.length == 0) return;
-    let position = new THREE.Vector3().copy(intersects[0].point);
-
-    let ball = this.createBall(this.ballMass, this.ballRadius, position);
-    this.editor.state.balls.push(ball);
-
-    console.log('ball placed on ceiling');
   };
 }
 

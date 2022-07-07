@@ -6,14 +6,14 @@ const WebSocketContext = createContext(null);
 
 export { WebSocketContext };
 
-const WebSocketProvider = ({ children, user, project }) => {
+const WebSocketProvider = ({ children }) => {
   const [websocket, setWebSocket] = useState(null);
 
   useEffect(() => {
     const socketCreated = io(config.BASE_URL);
 
     setWebSocket(socketCreated);
-  }, [user, project]);
+  }, []);
 
   if (!websocket) {
     return <>{children}</>;
