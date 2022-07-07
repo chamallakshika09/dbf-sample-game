@@ -125,20 +125,13 @@ class Viewport {
     let camera = this.camera;
     let raycaster = this.raycaster;
     let objects = this.getRaycastableObjects();
-    if (!objects) return;
+    //if (!objects) return;
 
     this.updateMouse(event);
 
     let { intersects, INTERSECTED } = Select({ raycaster, mouse, camera, objects });
 
-    // if (INTERSECTED && INTERSECTED.userData.isRope) {
-    //   console.log(INTERSECTED);
-    //   //this.INTERSECTEDROPE = INTERSECTED;
-    //   return;
-    // }
-
     if (INTERSECTED) {
-      // console.log('ball');
       ToggleHighlight(this.editor.viewport, intersects, INTERSECTED);
       return;
     }

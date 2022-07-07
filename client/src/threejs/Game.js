@@ -44,9 +44,6 @@ class Game {
         const ball = this.viewport.scene.getObjectById(balls[i].id);
         if (ball) {
           disposeMesh(this.viewport.scene, ball, true);
-          // this.viewport.scene.remove(ball);
-          // ball.geometry.dispose();
-          // ball.material.dispose();
         }
       }
     }
@@ -56,9 +53,6 @@ class Game {
         const rope = this.viewport.scene.getObjectById(ropes[i].id);
         if (rope) {
           disposeMesh(this.viewport.scene, rope, true);
-          // this.viewport.scene.remove(rope);
-          // rope.geometry.dispose();
-          // rope.material.dispose();
         }
       }
     }
@@ -213,6 +207,7 @@ class Game {
   };
 
   removeRope(rope) {
+    this.physicsWorld.removeSoftBody(rope.physicsBody);
     const index = this.editor.state.ropes.findIndex(getId);
     this.editor.state.ropes.splice(index, 1);
 
