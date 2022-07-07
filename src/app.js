@@ -48,16 +48,16 @@ app.use(
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
-if (NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
+// if (NODE_ENV === 'production') {
+app.use(express.static(path.join(__dirname, '../client/build')));
 
-  // app.use((req, res) => {
-  //   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  // });
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
-}
+// app.use((req, res) => {
+//   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+// });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
+// }
 
 app.use('/api/v1', routes);
 

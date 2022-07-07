@@ -2,6 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3010",
   "dependencies": {
     "@mui/material": "^5.8.6",
     "@mui/styles": "^5.8.6",

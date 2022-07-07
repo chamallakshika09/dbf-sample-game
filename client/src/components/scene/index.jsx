@@ -32,11 +32,11 @@ const Scene = (props) => {
     const { setEditor, setGame } = props;
 
     editor = new Editor();
-    if (process.env.NODE_ENV === 'development') {
-      editor.ws = io(config.BASE_URL);
-    } else {
-      editor.ws = io();
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //   editor.ws = io(config.BASE_URL);
+    // } else {
+    editor.ws = io();
+    // }
 
     viewport = new Viewport(editor, mountRef);
     game = new Game(editor, viewport);
