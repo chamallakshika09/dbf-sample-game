@@ -121,11 +121,12 @@ class Viewport {
   }
 
   mouseHover(event) {
+    const { selectionMode } = this.controls;
     let mouse = this.mouse;
     let camera = this.camera;
     let raycaster = this.raycaster;
-    let objects = this.getRaycastableObjects();
-    //if (!objects) return;
+    let objects = selectionMode ? [...this.editor.state.balls] : this.getRaycastableObjects();
+    // if (!objects) return;
 
     this.updateMouse(event);
 
@@ -137,9 +138,17 @@ class Viewport {
     }
 
     if (!this.INTERSECTED) return;
-    let hex = this.INTERSECTED.userData.color;
-    this.INTERSECTED.material.color.setHex(hex);
-    this.INTERSECTED = null;
+    if (!selectionMode) {
+      let hex = this.INTERSECTED.userData.color;
+      this.INTERSECTED.material.color.setHex(hex);
+      this.INTERSECTED = null;
+      return;
+    }
+    if (this.INTERSECTED.material.color.getHex() === 0xfa9c3f) {
+      let hex = this.INTERSECTED.userData.color;
+      this.INTERSECTED.material.color.setHex(hex);
+      this.INTERSECTED = null;
+    }
   }
 
   getRaycastableObjects() {
@@ -149,16 +158,22 @@ class Viewport {
 }
 
 function ToggleHighlight(editor, intersects, INTERSECTED) {
+  const { viewport } = editor;
+  const { selectionMode } = viewport.controls;
+
   if (intersects.length === 0) return;
-  let { viewport } = editor;
   if (INTERSECTED !== viewport.INTERSECTED) {
-    if (viewport.INTERSECTED) {
+    if (viewport.INTERSECTED && !selectionMode) {
       let hex = INTERSECTED.userData.color;
       viewport.INTERSECTED.material.color.setHex(hex);
     }
     viewport.INTERSECTED = INTERSECTED;
     viewport.intersects = intersects;
-    viewport.INTERSECTED.material.color.setHex(0xff0000);
+    if (!selectionMode) {
+      viewport.INTERSECTED.currentHex = viewport.INTERSECTED.material.color.getHex();
+    }
+    const hex = selectionMode ? 0xfa9c3f : 0xff0000;
+    viewport.INTERSECTED.material.color.setHex(hex);
   }
 }
 
