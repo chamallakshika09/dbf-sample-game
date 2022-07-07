@@ -16,7 +16,12 @@ let state = {
 
 const socketConnection = async (server) => {
   if (!socketIO && server) {
-    socketIO = new Server(server);
+    socketIO = new Server(server, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+      },
+    });
 
     /** using ammo.js */
     // const ammo = await AMMO();
