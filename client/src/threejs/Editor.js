@@ -1,7 +1,6 @@
 import { stateApi } from 'apis';
 import { ObjectLoader, Quaternion, Vector3 } from 'three';
 import { SEND_INITIAL_STATE, UPDATE_STATE } from '../constants';
-import axios from 'axios';
 class Editor {
   constructor() {
     this.pickingArr = [];
@@ -37,7 +36,7 @@ class Editor {
 
   loadGame = async () => {
     try {
-      const response = await axios.get('api/v1/state');
+      const response = await stateApi.get('state');
       console.log(response.data);
       this.loadInitialState(response.data);
     } catch (error) {

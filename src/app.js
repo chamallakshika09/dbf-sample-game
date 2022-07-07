@@ -6,7 +6,6 @@ const compression = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-const { NODE_ENV } = require('./config');
 const routes = require('./routes');
 
 // const formidableMiddleware = require('express-formidable');
@@ -48,16 +47,16 @@ app.use(
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
-// if (NODE_ENV === 'production') {
-app.use(express.static(path.join(__dirname, '../client/build')));
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
 
-// app.use((req, res) => {
-//   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-// });
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-});
-// }
+  // app.use((req, res) => {
+  //   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  // });
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  });
+}
 
 app.use('/api/v1', routes);
 
