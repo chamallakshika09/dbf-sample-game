@@ -7,6 +7,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 const { NODE_ENV } = require('./config');
+const routes = require('./routes');
 
 // const formidableMiddleware = require('express-formidable');
 
@@ -50,9 +51,14 @@ app.use(cors());
 if (NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 
-  app.get('*', (req, res) => {
+  // app.use((req, res) => {
+  //   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  // });
+  app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
   });
 }
+
+app.use('/api/v1', routes);
 
 module.exports = app;

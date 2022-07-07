@@ -14,12 +14,14 @@ let state = {
   rigidBodies: [],
 };
 
+const getState = () => state;
+
 const socketConnection = async (server) => {
   if (!socketIO && server) {
     socketIO = new Server(server, {
       cors: {
         origin: '*',
-        methods: ['GET', 'POST'],
+        methods: ['*'],
       },
     });
 
@@ -30,7 +32,7 @@ const socketConnection = async (server) => {
 
     socketIO.on('connection', async (socket) => {
       clients.push(socket.id);
-      socket.emit(SEND_INITIAL_STATE, state);
+      // socket.emit(SEND_INITIAL_STATE, state);
 
       socket.on(UPDATE_STATE, (updatedState) => {
         state = updatedState;
@@ -48,4 +50,4 @@ const socketConnection = async (server) => {
 
 const getSocketInstance = (req) => req.app.get(SOCKET_IO);
 
-module.exports = { socketConnection, SOCKET_IO, getSocketInstance };
+module.exports = { socketConnection, SOCKET_IO, getSocketInstance, getState };

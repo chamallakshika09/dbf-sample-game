@@ -1,3 +1,4 @@
+import { stateApi } from 'apis';
 import { ObjectLoader, Quaternion, Vector3 } from 'three';
 import { SEND_INITIAL_STATE, UPDATE_STATE } from '../constants';
 class Editor {
@@ -33,8 +34,16 @@ class Editor {
     this.game.loadInitialScene();
   };
 
-  loadGame = () => {
-    this.ws.on(SEND_INITIAL_STATE, this.loadInitialState);
+  loadGame = async () => {
+    try {
+      const response = await stateApi.get('state');
+      console.log(response.data);
+      this.loadInitialState(response.data);
+    } catch (error) {
+      console.log('error', error);
+    }
+
+    // this.ws.on(SEND_INITIAL_STATE, this.loadInitialState);
   };
 }
 
