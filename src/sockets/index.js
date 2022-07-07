@@ -21,7 +21,7 @@ const socketConnection = async (server) => {
     socketIO = new Server(server, {
       cors: {
         origin: '*',
-        methods: ['*'],
+        methods: ['GET,HEAD,PUT,PATCH,POST,DELETE'],
       },
     });
 
