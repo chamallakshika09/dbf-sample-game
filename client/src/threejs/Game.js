@@ -14,10 +14,16 @@ class Game {
     // elements option
     this.ballRadius = 0.6;
     this.ceilingBallMass = 0;
-    this.ropeBallMass = 1.2;
-    this.ropeNumSegments = 10;
+    this.ropeBallMass = 10.2;
+    this.ropeNumSegments = 2;
     this.ropeMass = 12;
     this.influence = 1;
+
+    //random color assigned per player
+    let randomR = Math.random();
+    let randomG = Math.random();
+    let randomB = Math.random();
+    this.color = new THREE.Color(randomR, randomG, randomB);
 
     //scene objects
     this.ceiling = null;
@@ -123,7 +129,7 @@ class Game {
 
     const ball = new THREE.Mesh(
       new THREE.SphereGeometry(ballRadius, 20, 20),
-      new THREE.MeshPhongMaterial({ color: 0x202020 })
+      new THREE.MeshStandardMaterial({ color: this.color })
     );
     ball.castShadow = true;
     ball.receiveShadow = true;
@@ -135,6 +141,7 @@ class Game {
     ball.userData.pos = position;
     ball.userData.quat = quaternion;
     ball.userData.mass = ballMass;
+    ball.userData.color = this.color;
     ball.userData.isBall = true;
     return ball;
   };
@@ -147,7 +154,7 @@ class Game {
   createRope = (ball1, ball2) => {
     // Rope graphic object
     const ropeGeometry = new THREE.BufferGeometry();
-    const ropeMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const ropeMaterial = new THREE.LineBasicMaterial({ color: this.color });
     const ropePositions = [];
     const ropeIndices = [];
 
@@ -197,6 +204,7 @@ class Game {
     rope.userData.ball1 = ball1.userData.id;
     rope.userData.ball2 = ball2.userData.id;
     rope.userData.isRope = true;
+    rope.userData.color = this.color;
 
     this.editor.state.ropes.push(rope);
 

@@ -132,12 +132,13 @@ class Viewport {
     let { intersects, INTERSECTED } = Select({ raycaster, mouse, camera, objects });
 
     if (INTERSECTED) {
-      ToggleHighlight(this.editor.viewport, intersects, INTERSECTED);
+      ToggleHighlight(this.editor, intersects, INTERSECTED);
       return;
     }
 
     if (!this.INTERSECTED) return;
-    this.INTERSECTED.material.color.setHex(0x000000);
+    let hex = this.INTERSECTED.userData.color;
+    this.INTERSECTED.material.color.setHex(hex);
     this.INTERSECTED = null;
   }
 
@@ -147,15 +148,16 @@ class Viewport {
   }
 }
 
-function ToggleHighlight(viewport, intersects, INTERSECTED) {
+function ToggleHighlight(editor, intersects, INTERSECTED) {
   if (intersects.length === 0) return;
+  let { viewport } = editor;
   if (INTERSECTED !== viewport.INTERSECTED) {
     if (viewport.INTERSECTED) {
-      viewport.INTERSECTED.material.color.setHex(0x000000);
+      let hex = INTERSECTED.userData.color;
+      viewport.INTERSECTED.material.color.setHex(hex);
     }
     viewport.INTERSECTED = INTERSECTED;
     viewport.intersects = intersects;
-    viewport.INTERSECTED.currentHex = viewport.INTERSECTED.material.color.getHex();
     viewport.INTERSECTED.material.color.setHex(0xff0000);
   }
 }
