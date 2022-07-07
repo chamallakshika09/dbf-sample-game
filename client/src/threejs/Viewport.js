@@ -33,7 +33,6 @@ class Viewport {
   }
 
   getCamera = () => {
-    // move to viewport?
     let container = this.element.current;
     let width = container.offsetWidth;
     let height = window.innerHeight;
@@ -49,7 +48,6 @@ class Viewport {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    // let renderer = new THREE.WebGLRenderer();
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
@@ -126,32 +124,46 @@ class Viewport {
     let mouse = this.mouse;
     let camera = this.camera;
     let raycaster = this.raycaster;
-    let objects = this.editor.state.balls;
+    let objects = this.getRaycastableObjects();
     if (!objects) return;
 
     this.updateMouse(event);
 
     let { intersects, INTERSECTED } = Select({ raycaster, mouse, camera, objects });
 
-    ToggleHighlight(this.editor.viewport, intersects, INTERSECTED);
+    // if (INTERSECTED && INTERSECTED.userData.isRope) {
+    //   console.log(INTERSECTED);
+    //   //this.INTERSECTEDROPE = INTERSECTED;
+    //   return;
+    // }
+
+    if (INTERSECTED) {
+      // console.log('ball');
+      ToggleHighlight(this.editor.viewport, intersects, INTERSECTED);
+      return;
+    }
+
+    if (!this.INTERSECTED) return;
+    this.INTERSECTED.material.color.setHex(0x000000);
+    this.INTERSECTED = null;
+  }
+
+  getRaycastableObjects() {
+    let objects = [...this.editor.state.balls, ...this.editor.state.ropes];
+    return objects;
   }
 }
 
 function ToggleHighlight(viewport, intersects, INTERSECTED) {
-  if (intersects) {
-    if (INTERSECTED !== viewport.INTERSECTED) {
-      if (viewport.INTERSECTED) {
-        viewport.INTERSECTED.material.emissive.setHex(viewport.INTERSECTED.material.emissive.setHex(0x00ff00));
-      }
-      viewport.INTERSECTED = INTERSECTED;
-      viewport.intersects = intersects;
-      viewport.INTERSECTED.currentHex = viewport.INTERSECTED.material.emissive.getHex();
-      viewport.INTERSECTED.material.emissive.setHex(0xff0000);
+  if (intersects.length === 0) return;
+  if (INTERSECTED !== viewport.INTERSECTED) {
+    if (viewport.INTERSECTED) {
+      viewport.INTERSECTED.material.color.setHex(0x000000);
     }
-  } else {
-    if (!viewport.INTERSECTED) return;
-    viewport.INTERSECTED.material.emissive.setHex(viewport.INTERSECTED.material.emissive.setHex(0x00ff00));
-    viewport.INTERSECTED = null;
+    viewport.INTERSECTED = INTERSECTED;
+    viewport.intersects = intersects;
+    viewport.INTERSECTED.currentHex = viewport.INTERSECTED.material.color.getHex();
+    viewport.INTERSECTED.material.color.setHex(0xff0000);
   }
 }
 

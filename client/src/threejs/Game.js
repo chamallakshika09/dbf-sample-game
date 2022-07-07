@@ -13,9 +13,10 @@ class Game {
     this.gravityConstant = -9.8;
     // elements option
     this.ballRadius = 0.6;
-    this.ballMass = 0;
+    this.ceilingBallMass = 0;
+    this.ropeBallMass = 1.2;
     this.ropeNumSegments = 10;
-    this.ropeMass = 3;
+    this.ropeMass = 12;
     this.influence = 1;
 
     //scene objects
@@ -34,10 +35,11 @@ class Game {
     this.animate();
   };
 
-  createBallFromState = (ball, ballRadius, ballMass) => {
+  createBallFromState = (ball, ballRadius) => {
     const ballShape = new this.Ammo.btSphereShape(ballRadius);
     ballShape.setMargin(this.margin);
-    this.createRigidBody(ball, ballShape, ballMass, ball.userData.pos, ball.userData.quat);
+    let mass = ball.userData.mass;
+    this.createRigidBody(ball, ballShape, mass, ball.userData.pos, ball.userData.quat);
   };
 
   createRopeFromState = (rope) => {
@@ -82,7 +84,7 @@ class Game {
 
     if (balls.length > 0) {
       for (let i = 0; i < balls.length; i++) {
-        this.createBallFromState(balls[i], this.ballRadius, this.ballMass);
+        this.createBallFromState(balls[i], this.ballRadius);
       }
     }
 
@@ -109,6 +111,8 @@ class Game {
     ball.userData.id = uuidv4();
     ball.userData.pos = position;
     ball.userData.quat = quaternion;
+    ball.userData.mass = ballMass;
+    ball.userData.isBall = true;
     return ball;
   };
 
@@ -169,6 +173,7 @@ class Game {
     rope.userData.id = uuidv4();
     rope.userData.ball1 = ball1.userData.id;
     rope.userData.ball2 = ball2.userData.id;
+    rope.userData.isRope = true;
 
     this.editor.state.ropes.push(rope);
 
@@ -177,6 +182,18 @@ class Game {
 
     return { rope, ropeSoftBody };
   };
+
+  removeRope(rope) {
+    const index = this.editor.state.ropes.findIndex(getId);
+    this.editor.state.ropes.splice(index, 1);
+
+    console.log(index);
+    disposeMesh(this.viewport.scene, rope, true);
+
+    function getId(element) {
+      return element.userData.id === rope.userData.id;
+    }
+  }
 
   addLights = () => {
     const { scene } = this.viewport;
@@ -374,4 +391,21 @@ function lineVector(p1, p2) {
   let ny = p2.y - p1.y;
   let nz = p2.z - p1.z;
   return new THREE.Vector3(nx, ny, nz);
+}
+
+function disposeMesh(scene, object, recur) {
+  if (!object.isObject3D) return;
+
+  if (!object) return;
+
+  scene.remove(object);
+
+  if (object.parent) object.parent.remove(object);
+
+  if (object.geometry) object.geometry.dispose();
+  if (object.material) object.material.dispose(); // we don't use textures
+
+  if (recur) {
+    object.children.forEach((child) => disposeMesh(child, recur));
+  }
 }
