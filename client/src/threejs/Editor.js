@@ -38,7 +38,6 @@ class Editor {
   loadGame = async () => {
     try {
       const response = await stateApi.get('state');
-      console.log(response.data);
       this.loadInitialState(response.data);
     } catch (error) {
       console.log('error', error);

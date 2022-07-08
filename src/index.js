@@ -48,7 +48,7 @@ const main = async () => {
       logger.info(`REST API is listening on ${PORT} - env ${process.env.NODE_ENV}`);
     });
   } catch (error) {
-    logger.error('Error occured while DBF REST API is starting', error);
+    logger.error('Error occured while REST API is starting', error);
     process.exit(1);
   }
 };

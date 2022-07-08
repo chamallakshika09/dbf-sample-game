@@ -1,7 +1,6 @@
 const { Server } = require('socket.io');
-// const AMMO = require('ammo.js');
 
-const { UPDATE_STATE, BROADCAST_UPDATED_STATE, SEND_INITIAL_STATE } = require('../constants');
+const { UPDATE_STATE, BROADCAST_UPDATED_STATE } = require('../constants');
 const { getDiff, updateDiff } = require('../utils/stateOps');
 
 const SOCKET_IO = 'socketIO';
@@ -25,11 +24,6 @@ const socketConnection = async (server) => {
         methods: ['GET,HEAD,PUT,PATCH,POST,DELETE'],
       },
     });
-
-    /** using ammo.js */
-    // const ammo = await AMMO();
-    // const v1 = new ammo.btVector3(1, 2, 3);
-    // console.log(v1);
 
     socketIO.on('connection', async (socket) => {
       clients.push(socket.id);

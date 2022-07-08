@@ -8,8 +8,6 @@ const helmet = require('helmet');
 const path = require('path');
 const routes = require('./routes');
 
-// const formidableMiddleware = require('express-formidable');
-
 const app = express();
 
 app.use(morgan('dev'));
@@ -17,23 +15,10 @@ app.use(morgan('dev'));
 app.set('trust proxy', true);
 
 // parse body params and attache them to req.body
-app.use(
-  express.json({
-    // limit: '100mb',
-    // verify: (req, res, buf) => {
-    //   if (req.originalUrl.indexOf('/webhook') !== -1) {
-    //     req.rawBody = buf.toString();
-    //   }
-    // },
-  })
-);
-
-// app.use(formidableMiddleware());
+app.use(express.json());
 
 app.use(express.urlencoded({ limit: '100mb', extended: true, parameterLimit: 50000 }));
 
-// TODO:
-// Disable gzip compression if not needed or use something like nginx to compress
 // gzip compression
 app.use(compression());
 
@@ -50,9 +35,6 @@ app.use(cors());
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 
-  // app.use((req, res) => {
-  //   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  // });
   app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
   });

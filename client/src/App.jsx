@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 
 const App = () => {
-  const [editor, setEditor] = useState(null);
-  const [game, setGame] = useState(null);
   const [splashVisible, setSplashVisible] = useState(true);
   const [selectionMode, setSelectionMode] = useState(false);
 
@@ -35,7 +33,7 @@ const App = () => {
       </Typography>
       {splashVisible && <SplashScreen visible={splashVisible} />}
       <InstructionPanel />
-      <Scene setEditor={setEditor} setGame={setGame} setSelectionMode={setSelectionMode} />
+      <Scene setSelectionMode={setSelectionMode} />
     </>
   );
 };

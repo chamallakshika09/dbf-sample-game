@@ -7,7 +7,7 @@ const logFormat = combine(
   timestamp(),
   json(),
   colorize(),
-  label({ label: '[DBF-API]' }),
+  label({ label: '[GAME-API]' }),
   printf(
     ({ timestamp: Timestamp, label: Label, level, message, ...info }) =>
       `${Timestamp} ${chalk.cyan(Label)} ${level} : ${message} : ${JSON.stringify({ ...info })}`
