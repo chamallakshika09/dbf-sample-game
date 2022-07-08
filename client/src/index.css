@@ -9,3 +9,7 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+#mount {
+  background: linear-gradient(#e5d599 20%, #2fc2a1);
+}

@@ -1,8 +1,7 @@
-import InstructionPanel from 'components/instructions-panel';
-import Scene from 'components/scene';
-import SplashScreen from 'components/spalsh-screen';
 import { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
+import Scene from 'components/scene';
+import SplashScreen from 'components/spalsh-screen';
 
 const App = () => {
   const [splashVisible, setSplashVisible] = useState(true);
@@ -32,7 +31,6 @@ const App = () => {
         {selectionMode ? 'Ball selection mode' : 'Ball placing mode'}
       </Typography>
       {splashVisible && <SplashScreen visible={splashVisible} />}
-      <InstructionPanel />
       <Scene setSelectionMode={setSelectionMode} />
     </>
   );

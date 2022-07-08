@@ -1,4 +1,5 @@
 import { Stack, Typography, Zoom } from '@mui/material';
+import InstructionPanel from 'components/instructions-panel';
 
 const SplashScreen = ({ visible }) => {
   return (
@@ -14,8 +15,9 @@ const SplashScreen = ({ visible }) => {
       justifyContent="center"
       alignItems="center"
     >
+      <InstructionPanel />
       <Zoom in={visible} style={{ transitionDelay: visible ? '500ms' : '0ms' }}>
-        <Typography sx={{ fontSize: 36, fontWeight: 'bold', fontFamily: 'poppins' }}>Sample Game</Typography>
+        <Typography sx={{ fontSize: 36, fontWeight: 'bold', fontFamily: 'poppins' }}>Gaudi Builder</Typography>
       </Zoom>
     </Stack>
   );

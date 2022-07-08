@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
+
 import Editor from 'threejs/Editor';
 import Game from 'threejs/Game';
 import Viewport from 'threejs/Viewport';
-import { io } from 'socket.io-client';
 import config from '../../config';
 import ToolBar from 'threejs/Editor.toolbar';
 import { Keyboard } from 'threejs/Viewport.keys';
