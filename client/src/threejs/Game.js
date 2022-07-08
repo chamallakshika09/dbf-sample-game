@@ -10,12 +10,12 @@ class Game {
     this.margin = 0.05;
     this.rigidBodies = [];
     this.armMovement = 0;
-    this.gravityConstant = -9.8;
+    this.gravityConstant = -300; //-9.8;
     // elements option
     this.ballRadius = 0.6;
     this.ceilingBallMass = 0;
     this.ropeBallMass = 10.2;
-    this.ropeNumSegments = 2;
+    this.ropeNumSegments = 6;
     this.ropeMass = 12;
     this.influence = 1;
 
@@ -147,8 +147,9 @@ class Game {
   };
 
   createObjects = () => {
-    this.floor = this.createFloor(0, 60, 60, 1);
-    this.ceiling = this.createCeiling(40, 60, 10);
+    this.floor = this.createCeiling(-20, 60, 20);
+    //this.floor = this.createFloor(0, 60, 60, 1);
+    this.ceiling = this.createCeiling(30, 60, 20);
   };
 
   createRope = (ball1, ball2) => {
@@ -189,9 +190,14 @@ class Game {
       0
     );
     const sbConfig = ropeSoftBody.get_m_cfg();
+    sbConfig.set_kDP(0.01); //damping
+    sbConfig.set_collisions(0x11);
     sbConfig.set_viterations(10);
     sbConfig.set_piterations(10);
     ropeSoftBody.setTotalMass(this.ropeMass, false);
+    //stiffness
+    ropeSoftBody.get_m_materials().at(0).set_m_kLST(0.2);
+    ropeSoftBody.get_m_materials().at(0).set_m_kAST(0.0001);
     this.Ammo.castObject(ropeSoftBody, this.Ammo.btCollisionObject)
       .getCollisionShape()
       .setMargin(this.margin * 3);
@@ -218,8 +224,6 @@ class Game {
     this.physicsWorld.removeSoftBody(rope.physicsBody);
     const index = this.editor.state.ropes.findIndex(getId);
     this.editor.state.ropes.splice(index, 1);
-
-    console.log(index);
     disposeMesh(this.viewport.scene, rope, true);
 
     function getId(element) {
@@ -233,8 +237,8 @@ class Game {
     scene.add(ambientLight);
 
     const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(-10, 10, 5);
-    light.castShadow = true;
+    light.position.set(10, 10, 5);
+    //light.castShadow = true;
     const d = 10;
     light.shadow.camera.left = -d;
     light.shadow.camera.right = d;

@@ -42,7 +42,7 @@ class Viewport {
     const aspect = width / height;
 
     const camera = new THREE.PerspectiveCamera(60, aspect, 0.2, 2000);
-    camera.position.set(70, 70, 70);
+    camera.position.set(60, 10, 60);
     return camera;
   };
 
