@@ -15,7 +15,7 @@ const SplashScreen = ({ visible }) => {
       alignItems="center"
     >
       <Zoom in={visible} style={{ transitionDelay: visible ? '500ms' : '0ms' }}>
-        <Typography sx={{ fontSize: 36, fontWeight: 'bold', fontFamily: 'poppins' }}>Gaudi Designs</Typography>
+        <Typography sx={{ fontSize: 36, fontWeight: 'bold', fontFamily: 'poppins' }}>Sample Game</Typography>
       </Zoom>
     </Stack>
   );

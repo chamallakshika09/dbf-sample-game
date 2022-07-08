@@ -25,13 +25,16 @@ const Scene = (props) => {
       ref.removeChild(viewport.renderer.domElement);
       window.removeEventListener('resize', onUpdateDimensions);
       editor.ws?.off(SEND_INITIAL_STATE, editor.loadInitialState);
+      editor.ws?.off();
+      editor.ws?.disconnect();
     };
   }, []);
 
   const createScene = () => {
-    const { setEditor, setGame } = props;
+    const { setEditor, setGame, setSelectionMode } = props;
 
     editor = new Editor();
+    editor.setSelectionMode = setSelectionMode;
     if (process.env.NODE_ENV === 'development') {
       editor.ws = io(config.BASE_URL);
     } else {
@@ -61,10 +64,6 @@ const Scene = (props) => {
     // resize threejs canvas
     viewport.camera.aspect = aspect;
     viewport.camera.updateProjectionMatrix();
-
-    // viewport.cameraOrtho.left = viewport.cameraOrtho.bottom * aspect;
-    // viewport.cameraOrtho.right = viewport.cameraOrtho.top * aspect;
-    // viewport.cameraOrtho.updateProjectionMatrix();
 
     viewport.renderer.setSize(width, height);
   };
