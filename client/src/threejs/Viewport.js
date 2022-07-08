@@ -35,8 +35,7 @@ class Viewport {
   }
 
   getCamera = () => {
-    let container = this.element.current;
-    let width = container.offsetWidth;
+    let width = window.innerWidth;
     let height = window.innerHeight;
 
     const aspect = width / height;
