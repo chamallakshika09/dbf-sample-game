@@ -54,26 +54,25 @@ class Controls {
         return;
       }
 
-      // if (object && object.userData.isBall) {
-      //   const index = editor.pickingArr.findIndex((item) => item.uuid === object.uuid);
-      //   if (index !== -1) {
-      //     editor.pickingArr.splice(index, 1);
-      //     console.log('ball removed from selection');
-      //   } else {
-      //     editor.pickingArr.push(object);
-      //     if (editor.pickingArr.length > 2) editor.pickingArr.shift();
-      //     console.log('ball added to selection');
-      //   }
-      //   console.log(editor.pickingArr.length);
-
-      //   if (editor.pickingArr.length === 2) {
-      //     let ball1 = editor.pickingArr[0];
-      //     let ball2 = editor.pickingArr[1];
-      //     game.createRope(ball1, ball2);
-      //     editor.updateState();
-      //   }
-      //   return;
-      // }
+      if (object && object.userData.isBall) {
+        //   const index = editor.pickingArr.findIndex((item) => item.uuid === object.uuid);
+        //   if (index !== -1) {
+        //     editor.pickingArr.splice(index, 1);
+        //     console.log('ball removed from selection');
+        //   } else {
+        //     editor.pickingArr.push(object);
+        //     if (editor.pickingArr.length > 2) editor.pickingArr.shift();
+        //     console.log('ball added to selection');
+        //   }
+        //   console.log(editor.pickingArr.length);
+        //   if (editor.pickingArr.length === 2) {
+        //     let ball1 = editor.pickingArr[0];
+        //     let ball2 = editor.pickingArr[1];
+        //     game.createRope(ball1, ball2);
+        //     editor.updateState();
+        //   }
+        //   return;
+      }
 
       //place ball on rope
       if (object && object.userData.isRope) {
