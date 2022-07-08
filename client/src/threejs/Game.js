@@ -15,7 +15,7 @@ class Game {
     this.ballRadius = 0.6;
     this.ceilingBallMass = 0;
     this.ropeBallMass = 10.2;
-    this.ropeNumSegments = 6;
+    this.ropeNumSegments = 10;
     this.ropeMass = 12;
     this.influence = 1;
 
