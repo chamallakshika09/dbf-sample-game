@@ -4,6 +4,8 @@ body {
     'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 code {
@@ -11,5 +13,7 @@ code {
 }
 
 #mount {
+  width: 100vw;
+  height: 100vh;
   background: linear-gradient(#e5d599 20%, #2fc2a1);
 }
